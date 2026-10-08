@@ -1,0 +1,56 @@
+# Monorepo para Render.
+# En el panel: New > Blueprint, y conecta este repositorio.
+# Render pedirá SUPABASE_URL y SUPABASE_ANON_KEY al sincronizar.
+
+services:
+  - type: web
+    name: mostrador-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm run start -w @mostrador/api
+    healthCheckPath: /salud
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: CORS_ORIGIN
+        fromService:
+          name: mostrador-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+    buildFilter:
+      paths:
+        - apps/api/**
+        - package.json
+        - package-lock.json
+
+  - type: web
+    name: mostrador-web
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build -w @mostrador/web
+    startCommand: npm run start -w @mostrador/web
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: HOST
+        value: 0.0.0.0
+      - key: API_URL
+        fromService:
+          name: mostrador-api
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: ORIGIN
+        fromService:
+          name: mostrador-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+    buildFilter:
+      paths:
+        - apps/web/**
+        - package.json
+        - package-lock.json

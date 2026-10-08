@@ -1,0 +1,21 @@
+{
+  "name": "mostrador",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c green,blue \"npm run dev -w @mostrador/api\" \"npm run dev -w @mostrador/web\"",
+    "dev:api": "npm run dev -w @mostrador/api",
+    "dev:web": "npm run dev -w @mostrador/web",
+    "build": "npm run build -w @mostrador/web",
+    "start:api": "npm run start -w @mostrador/api",
+    "start:web": "npm run start -w @mostrador/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
