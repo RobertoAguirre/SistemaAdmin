@@ -4,7 +4,7 @@
   import { page } from '$app/stores';
   import { cerrar, iniciar, sesion } from '$lib/sesion.svelte.js';
 
-  let { data, children } = $props();
+  let { children } = $props();
 
   const enlaces = [
     { href: '/', etiqueta: 'Mostrador' },
@@ -16,7 +16,7 @@
   ];
 
   $effect(() => {
-    iniciar(data.apiUrl);
+    iniciar();
   });
 
   $effect(() => {

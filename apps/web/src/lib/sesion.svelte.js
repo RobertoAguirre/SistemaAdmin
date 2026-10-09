@@ -4,13 +4,11 @@ export const sesion = $state({
   lista: false,
   token: '',
   refresh: '',
-  usuario: null,
-  apiUrl: 'http://localhost:3001'
+  usuario: null
 });
 
-export function iniciar(apiUrl) {
+export function iniciar() {
   if (sesion.lista) return;
-  sesion.apiUrl = apiUrl || sesion.apiUrl;
   const guardado = sessionStorage.getItem(LLAVE);
   if (guardado) {
     try {

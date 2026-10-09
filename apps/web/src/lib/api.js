@@ -3,7 +3,7 @@ import { cerrar, guardar, sesion } from './sesion.svelte.js';
 export async function pedir(ruta, opciones = {}, reintento = true) {
   let respuesta;
   try {
-    respuesta = await fetch(`${sesion.apiUrl}${ruta}`, {
+    respuesta = await fetch(`/backend${ruta}`, {
       method: opciones.method ?? 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -16,7 +16,7 @@ export async function pedir(ruta, opciones = {}, reintento = true) {
   }
 
   if (respuesta.status === 401 && reintento && sesion.refresh && ruta !== '/auth/renovar') {
-    const renovado = await fetch(`${sesion.apiUrl}/auth/renovar`, {
+    const renovado = await fetch('/backend/auth/renovar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: sesion.refresh })
