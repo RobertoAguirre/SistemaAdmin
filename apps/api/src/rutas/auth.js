@@ -18,6 +18,52 @@ async function perfilDe(supabase, usuarioId) {
   return data;
 }
 
+function sesionPublica(session, usuario) {
+  return {
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
+    usuario
+  };
+}
+
+auth.post('/registro', envolver(async (req, res) => {
+  const nombre = String(req.body?.nombre ?? '').trim();
+  const email = String(req.body?.email ?? '').trim();
+  const password = String(req.body?.password ?? '');
+
+  if (!nombre) return res.status(400).json({ error: 'Indica el nombre' });
+  if (!email || !password) return res.status(400).json({ error: 'Escribe correo y contraseña' });
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+  }
+
+  try {
+    const supabase = clienteAnon();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { nombre } }
+    });
+
+    if (error) return fallar(res, error, 400);
+    if (data.user?.identities?.length === 0) {
+      return res.status(409).json({ error: 'Ese correo ya está registrado' });
+    }
+    if (!data.session || !data.user) {
+      return res.status(201).json({
+        confirmacion: true,
+        mensaje: 'Cuenta creada. Revisa tu correo para confirmarla y luego entra.'
+      });
+    }
+
+    const conToken = clienteConToken(data.session.access_token);
+    const usuario = await perfilDe(conToken, data.user.id);
+    res.status(201).json(sesionPublica(data.session, usuario));
+  } catch (error) {
+    fallar(res, error, 400);
+  }
+}));
+
 auth.post('/entrar', envolver(async (req, res) => {
   const email = String(req.body?.email ?? '').trim();
   const password = String(req.body?.password ?? '');
@@ -33,11 +79,7 @@ auth.post('/entrar', envolver(async (req, res) => {
     const conToken = clienteConToken(data.session.access_token);
     const usuario = await perfilDe(conToken, data.user.id);
 
-    res.json({
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      usuario
-    });
+    res.json(sesionPublica(data.session, usuario));
   } catch (error) {
     fallar(res, error, 401);
   }
@@ -55,11 +97,7 @@ auth.post('/renovar', envolver(async (req, res) => {
     const conToken = clienteConToken(data.session.access_token);
     const usuario = await perfilDe(conToken, data.user.id);
 
-    res.json({
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      usuario
-    });
+    res.json(sesionPublica(data.session, usuario));
   } catch (error) {
     fallar(res, error, 401);
   }

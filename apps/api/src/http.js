@@ -17,7 +17,11 @@ export function mensajeError(error) {
   const texto = error?.message || 'Error de base de datos';
   if (texto === 'Invalid login credentials') return 'Correo o contraseña incorrectos';
   if (texto === 'Email not confirmed') {
-    return 'Confirma el correo o activa la confirmación automática en Supabase';
+    return 'Confirma el correo antes de entrar. Revisa tu bandeja.';
+  }
+  if (texto === 'User already registered') return 'Ese correo ya está registrado';
+  if (texto.startsWith('Password should be at least')) {
+    return 'La contraseña debe tener al menos 6 caracteres';
   }
   return texto.replace(/^P0001:\s*/, '');
 }

@@ -1,7 +1,8 @@
 -- Esquema de Mostrador para Supabase.
 -- Pégalo en el editor SQL del proyecto y ejecútalo una sola vez.
--- Después crea el primer usuario en Authentication (con auto-confirmación).
--- El trigger crea su perfil. Si el usuario ya existía, al entrar se crea solo.
+-- Las cuentas nuevas se crean desde la pantalla de entrada.
+-- El trigger crea el perfil. Si el usuario ya existía, al entrar se crea solo.
+-- En Authentication desactiva "Confirm email" para entrar justo después de registrarse.
 
 create table public.perfiles (
   id uuid primary key references auth.users (id) on delete cascade,
